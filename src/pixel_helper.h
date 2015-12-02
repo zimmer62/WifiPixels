@@ -26,7 +26,7 @@ class PIXEL_HELPER_CLASS
     void SetAll(RgbColor colour);
     
     NeoPixelBus strip = NeoPixelBus(pixelCount, pixelPin);
-
+	NeoPixelAnimator animations = NeoPixelAnimator(&strip);
     long previousMillis = 0;
 };
 

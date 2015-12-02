@@ -3,7 +3,9 @@
 #include "BlendRGB.h"
 #include "pixel_helper.h"
 
+
 struct RGBBLEND {
+	PIXEL_HELPER_CLASS* p_helper;
 	RgbColor RGB1;    // Start Color
 	RgbColor RGB2;    // End Color
 	int Cycles;       // Blend Cycles. 0=continuous
@@ -17,6 +19,7 @@ struct RGBBLEND {
 RGBBLEND SpinModeSettings;
 
 void ParseSpin(String input, PIXEL_HELPER_CLASS* p_helper) {
+	SpinModeSettings.p_helper = p_helper;
 	p_helper->LEDMode = Spin_Mode;
 
 	input.remove(0, 8);
@@ -33,10 +36,101 @@ void ParseSpin(String input, PIXEL_HELPER_CLASS* p_helper) {
 
 	SpinModeSettings.CycleNumber = 0;
 	SpinModeSettings.Progress = 0;
+	SpinModeSettings.ProgressSteps = 0;
 	SpinModeSettings.Direction = 1;
 	p_helper->previousMillis = millis() - SpinModeSettings.Interval; //todo: what that heck is this line doing and why?
+	p_helper->animations.FadeTo(2000, RgbColor(0, 0, 0));
+
+	//block until all pixels are OFF
+	int n = 0;
+	for (int K = 0; K < pixelCount; K++) {
+		RgbColor color = p_helper->strip.GetPixelColor(K);
+		n = n + color.R + color.G + color.B;
+	}
+	while (n > 0) {
+		n = 0;
+		for (int K = 0; K < pixelCount; K++) {
+			RgbColor color = p_helper->strip.GetPixelColor(K);
+			n = n + color.R + color.G + color.B;
+		}
+		p_helper->animations.UpdateAnimations(1000);
+		if (p_helper->strip.CanShow()) p_helper->strip.Show();
+		delay(1);
+	}
+
 
 }
+
+AnimUpdateCallback animOff = [=](uint16_t n, float progress)
+{
+	// progress will start at 0.0 and end at 1.0
+	RgbColor updatedColor = RgbColor::LinearBlend(SpinModeSettings.RGB2, RgbColor(0, 0, 0), progress);
+	SpinModeSettings.p_helper->strip.SetPixelColor(n, updatedColor);
+};
+
+AnimUpdateCallback animDown = [=](uint16_t n, float progress)
+{
+	// progress will start at 0.0 and end at 1.0
+	RgbColor updatedColor = RgbColor::LinearBlend(SpinModeSettings.RGB2, SpinModeSettings.RGB1, progress);
+	SpinModeSettings.p_helper->strip.SetPixelColor(n, updatedColor);
+	Serial.print("down-");
+	Serial.print(n);
+	Serial.print("-");
+	Serial.println(progress);
+	if (progress == 1.00) {
+		//TODO: probably not working for the same reason as below.
+		SpinModeSettings.p_helper->animations.StartAnimation(n, SpinModeSettings.Interval, animOff);
+	}
+};
+
+AnimUpdateCallback animUp = [=](uint16_t n, float progress)
+{
+	// progress will start at 0.0 and end at 1.0
+	RgbColor updatedColor = RgbColor::LinearBlend(SpinModeSettings.RGB1, SpinModeSettings.RGB2, progress);
+	SpinModeSettings.p_helper->strip.SetPixelColor(n, updatedColor);
+	if (progress == 1.00) {
+		/*Serial.print("upFinished-");
+		Serial.print(n);
+		Serial.print("-");
+		Serial.println(progress);*/
+		SpinModeSettings.p_helper->animations.StopAnimation(n);
+		//TODO: why can't I start a new animation from this callback?
+		SpinModeSettings.p_helper->animations.StartAnimation(n, SpinModeSettings.Interval, animDown);
+	}
+};
+
+
+void DoSpinMode(PIXEL_HELPER_CLASS* p_helper) {	
+	
+	if (SpinModeSettings.ProgressSteps == 0) p_helper->animations.StartAnimation(0, SpinModeSettings.Interval, animUp);
+	if (SpinModeSettings.ProgressSteps == 100) p_helper->animations.StartAnimation(1, SpinModeSettings.Interval, animUp);
+	if (SpinModeSettings.ProgressSteps == 200) p_helper->animations.StartAnimation(2, SpinModeSettings.Interval, animUp);
+	if (SpinModeSettings.ProgressSteps == 300) p_helper->animations.StartAnimation(3, SpinModeSettings.Interval, animUp);
+	if (SpinModeSettings.ProgressSteps == 400) p_helper->animations.StartAnimation(4, SpinModeSettings.Interval, animUp);
+	if (SpinModeSettings.ProgressSteps == 500) p_helper->animations.StartAnimation(5, SpinModeSettings.Interval, animUp);
+	if (SpinModeSettings.ProgressSteps == 600) p_helper->animations.StartAnimation(6, SpinModeSettings.Interval, animUp);
+	if (SpinModeSettings.ProgressSteps == 700) p_helper->animations.StartAnimation(7, SpinModeSettings.Interval, animUp);
+	if (SpinModeSettings.ProgressSteps == 800) p_helper->animations.StartAnimation(8, SpinModeSettings.Interval, animUp);
+	if (SpinModeSettings.ProgressSteps == 900) p_helper->animations.StartAnimation(9, SpinModeSettings.Interval, animUp);
+	if (SpinModeSettings.ProgressSteps == 1000) p_helper->animations.StartAnimation(10, SpinModeSettings.Interval, animUp);
+	if (SpinModeSettings.ProgressSteps == 1100) p_helper->animations.StartAnimation(11, SpinModeSettings.Interval, animUp);
+	if (SpinModeSettings.ProgressSteps == 1200) p_helper->animations.StartAnimation(12, SpinModeSettings.Interval, animUp);
+	if (SpinModeSettings.ProgressSteps == 1300) p_helper->animations.StartAnimation(13, SpinModeSettings.Interval, animUp);
+	if (SpinModeSettings.ProgressSteps == 1400) p_helper->animations.StartAnimation(14, SpinModeSettings.Interval, animUp);
+	if (SpinModeSettings.ProgressSteps == 1500) p_helper->animations.StartAnimation(15, SpinModeSettings.Interval, animUp);	
+	p_helper->animations.UpdateAnimations(1000);
+
+	
+
+
+	SpinModeSettings.ProgressSteps = SpinModeSettings.ProgressSteps + 1;
+	if (SpinModeSettings.ProgressSteps == 1599) SpinModeSettings.ProgressSteps = 0;
+	if (p_helper->strip.CanShow()) p_helper->strip.Show();
+	delay(1);
+}
+
+
+
 
 //uint16_t pixel = 0;
 //int time = 500;
@@ -113,77 +207,3 @@ void ParseSpin(String input, PIXEL_HELPER_CLASS* p_helper) {
 //	strip.Show();
 //	delay(1);
 //}
-
-
-void DoSpinMode(PIXEL_HELPER_CLASS* p_helper) {
-	unsigned long currentMillis = millis();
-
-	if (currentMillis - p_helper->previousMillis > SpinModeSettings.Interval) {
-		p_helper->previousMillis = currentMillis;
-
-		// Step Progress and control direction on Min and max
-		SpinModeSettings.Progress = SpinModeSettings.Progress + SpinModeSettings.Direction;
-
-		if (SpinModeSettings.Progress >= 1) {
-			SpinModeSettings.Progress = 1.0;
-			SpinModeSettings.Direction = -0.003921568627451;
-		}
-		if (SpinModeSettings.Progress <= 0) {
-			SpinModeSettings.Progress = 0.0;
-			SpinModeSettings.Direction = 0.003921568627451;
-		}
-
-		RgbColor rgb;
-		rgb = rgb.LinearBlend(SpinModeSettings.RGB1, SpinModeSettings.RGB2, SpinModeSettings.Progress);
-
-		/*if (rgb.R > 20 || rgb.B > 20 || rgb.G > 20) {
-			Serial.print("Progress=");
-			Serial.println(SpinModeSettings.Progress);
-			Serial.print("Direction=");
-			Serial.println(SpinModeSettings.Direction);
-			Serial.print("currentMillis=");
-			Serial.println(currentMillis);
-			Serial.print("previousMillis=");
-			Serial.println(p_helper->previousMillis);
-			Serial.print("Interval=");
-			Serial.println(SpinModeSettings.Interval);
-
-			Serial.print("RGB=");
-			Serial.print(rgb.R);
-			Serial.print(".");
-			Serial.print(rgb.G);
-			Serial.print(".");
-			Serial.println(rgb.B);
-			Serial.println("---");
-		}*/
-
-
-
-		p_helper->SetAll(rgb);
-
-		
-
-
-
-		//strip.SetPixelColor(K, colour);
-		if (p_helper->strip.CanShow()) p_helper->strip.Show();
-	}
-
-}
-//strip.SetPixelColor(0, RgbColor(25, 0, 0));
-//strip.SetPixelColor(1, RgbColor(0, 25, 0));
-//strip.SetPixelColor(2, RgbColor(0, 0, 25));
-//strip.SetPixelColor(3, RgbColor(25, 25, 25));
-//strip.Show();
-//Serial.println("3");
-//delay(1000);
-//Serial.println("2");
-//delay(1000);
-//Serial.println("1");
-//delay(1000);
-//strip.SetPixelColor(0, RgbColor(0));
-//strip.SetPixelColor(1, RgbColor(0));
-//strip.SetPixelColor(2, RgbColor(0));
-//strip.SetPixelColor(3, RgbColor(0));
-//strip.Show();
-//Serial.println("Off"); */

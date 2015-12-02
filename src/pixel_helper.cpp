@@ -32,7 +32,7 @@ PIXEL_HELPER_CLASS::PIXEL_HELPER_CLASS() {
   
   // Turn onboard led off
   pinMode(BUILTIN_LED, OUTPUT);
-  digitalWrite(BUILTIN_LED, HIGH);
+  digitalWrite(BUILTIN_LED, LOW);
 }
 
 
