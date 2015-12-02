@@ -9,7 +9,7 @@ struct RGBBLEND {
   int Interval;     // Delay between each loop cycle
   int CycleNumber;  // Current cycle // TO-DO
   int Direction;    // RGB1->RGB2 or RGB2->RGB1
-  int Progress;     // 0-255 0=RGB1 255=RGB2 
+  float Progress;     // 0-255 0=RGB1 255=RGB2 
   int ProgressSteps; // Rate of progress // TO-DO 
 };
 
@@ -53,8 +53,12 @@ void DoBlendMode(PIXEL_HELPER_CLASS* p_helper) {
       BlendModeSettings.Direction = 1;
     }
 
+	float tempProgress = BlendModeSettings.Progress / 255.0;
+	if (tempProgress > 1.0) tempProgress = 1.0;
+	if (tempProgress < 0.0) tempProgress = 0.0;
+
     RgbColor rgb;
-    rgb = rgb.LinearBlend(BlendModeSettings.RGB1, BlendModeSettings.RGB2, BlendModeSettings.Progress);
+    rgb = rgb.LinearBlend(BlendModeSettings.RGB1, BlendModeSettings.RGB2, tempProgress);
     p_helper->SetAll(rgb);
 
 

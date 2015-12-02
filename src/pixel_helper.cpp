@@ -26,12 +26,12 @@ void PIXEL_HELPER_CLASS::SetAll(RgbColor colour) {
 
 PIXEL_HELPER_CLASS::PIXEL_HELPER_CLASS() {
   // Clear LEDS
-  SetAll(RgbColor(0,0,0));
+  strip.Begin();
   strip.Show();
-
+  
   // Turn onboard led off
   pinMode(BUILTIN_LED, OUTPUT);
-  digitalWrite(BUILTIN_LED, LOW);
+  digitalWrite(BUILTIN_LED, HIGH);
 }
 
 
