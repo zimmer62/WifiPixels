@@ -7,6 +7,7 @@
 #define RGBMode_Blank 0
 #define RGBMode_BLEND 1
 #define CustomPattern_Mode 2
+#define Spin_Mode 3
 
 
 #define pixelPin 2

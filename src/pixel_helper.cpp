@@ -2,6 +2,7 @@
 #include "pixel_helper.h"
 #include "BlendRGB.h"
 #include "CustomPattern.h"
+#include "spinner.h"
 
 PIXEL_HELPER_CLASS * pixel_helper;
 
@@ -48,6 +49,9 @@ void PIXEL_HELPER_CLASS::ProcessCommand(String input) {
 	if (input.startsWith("CUSTOMPATTERN")) {
 		ParseCustomPattern(input,pixel_helper);
 	}
+	if (input.startsWith("SPINNER")) {
+		ParseSpin(input, pixel_helper);
+	}
 
 }
 
@@ -58,6 +62,8 @@ void PIXEL_HELPER_CLASS::pixelLoop() {
     DoBlendMode(pixel_helper);
   } else if(LEDMode == RGBMode_BLEND){
 	DoCustomPatternMode(pixel_helper);  
+  } else if (LEDMode == Spin_Mode) {
+	  DoSpinMode(pixel_helper);
   }
   
   if(ProcessSerial){
