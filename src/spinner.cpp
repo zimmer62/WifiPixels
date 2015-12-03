@@ -10,6 +10,7 @@ struct RGBBLEND {
 	RgbColor RGB2;    // End Color
 	int Cycles;       // Blend Cycles. 0=continuous
 	int Interval;     // Delay between each loop cycle
+	int FadeRate;     // Cycles to Fade
 	int CycleNumber;  // Current cycle // TO-DO
 	float Direction;    // RGB1->RGB2 or RGB2->RGB1
 	float Progress;     // 0-255 0=RGB1 255=RGB2 
@@ -32,14 +33,20 @@ void ParseSpin(String input, PIXEL_HELPER_CLASS* p_helper) {
 	SpinModeSettings.Cycles = input.substring(0, input.indexOf(',')).toInt();
 
 	input.remove(0, input.indexOf(',') + 1);
-	SpinModeSettings.Interval = input.toInt();
+	SpinModeSettings.Interval = input.substring(0, input.indexOf(',')).toInt();
+
+	input.remove(0, input.indexOf(',') + 1);
+	SpinModeSettings.FadeRate = input.toInt();
+
+	
+
 
 	SpinModeSettings.CycleNumber = 0;
 	SpinModeSettings.Progress = 0;
 	SpinModeSettings.ProgressSteps = 0;
 	SpinModeSettings.Direction = 1;
-	p_helper->previousMillis = millis() - SpinModeSettings.Interval; //todo: what that heck is this line doing and why?
-	p_helper->animations.FadeTo(2000, RgbColor(0, 0, 0));
+	SpinModeSettings.p_helper->previousMillis = millis() - SpinModeSettings.Interval; //todo: what that heck is this line doing and why?
+	SpinModeSettings.p_helper->animations.FadeTo(SpinModeSettings.FadeRate, RgbColor(0, 0, 0));
 
 	//block until all pixels are OFF
 	int n = 0;
@@ -53,8 +60,8 @@ void ParseSpin(String input, PIXEL_HELPER_CLASS* p_helper) {
 			RgbColor color = p_helper->strip.GetPixelColor(K);
 			n = n + color.R + color.G + color.B;
 		}
-		p_helper->animations.UpdateAnimations(1000);
-		if (p_helper->strip.CanShow()) p_helper->strip.Show();
+		SpinModeSettings.p_helper->animations.UpdateAnimations(1000);
+		if (SpinModeSettings.p_helper->strip.CanShow()) SpinModeSettings.p_helper->strip.Show();
 		delay(1);
 	}
 
@@ -102,29 +109,16 @@ AnimUpdateCallback animUp = [=](uint16_t n, float progress)
 
 void DoSpinMode(PIXEL_HELPER_CLASS* p_helper) {	
 	
-	if (SpinModeSettings.ProgressSteps == 0) p_helper->animations.StartAnimation(0, SpinModeSettings.Interval, animUp);
-	if (SpinModeSettings.ProgressSteps == 100) p_helper->animations.StartAnimation(1, SpinModeSettings.Interval, animUp);
-	if (SpinModeSettings.ProgressSteps == 200) p_helper->animations.StartAnimation(2, SpinModeSettings.Interval, animUp);
-	if (SpinModeSettings.ProgressSteps == 300) p_helper->animations.StartAnimation(3, SpinModeSettings.Interval, animUp);
-	if (SpinModeSettings.ProgressSteps == 400) p_helper->animations.StartAnimation(4, SpinModeSettings.Interval, animUp);
-	if (SpinModeSettings.ProgressSteps == 500) p_helper->animations.StartAnimation(5, SpinModeSettings.Interval, animUp);
-	if (SpinModeSettings.ProgressSteps == 600) p_helper->animations.StartAnimation(6, SpinModeSettings.Interval, animUp);
-	if (SpinModeSettings.ProgressSteps == 700) p_helper->animations.StartAnimation(7, SpinModeSettings.Interval, animUp);
-	if (SpinModeSettings.ProgressSteps == 800) p_helper->animations.StartAnimation(8, SpinModeSettings.Interval, animUp);
-	if (SpinModeSettings.ProgressSteps == 900) p_helper->animations.StartAnimation(9, SpinModeSettings.Interval, animUp);
-	if (SpinModeSettings.ProgressSteps == 1000) p_helper->animations.StartAnimation(10, SpinModeSettings.Interval, animUp);
-	if (SpinModeSettings.ProgressSteps == 1100) p_helper->animations.StartAnimation(11, SpinModeSettings.Interval, animUp);
-	if (SpinModeSettings.ProgressSteps == 1200) p_helper->animations.StartAnimation(12, SpinModeSettings.Interval, animUp);
-	if (SpinModeSettings.ProgressSteps == 1300) p_helper->animations.StartAnimation(13, SpinModeSettings.Interval, animUp);
-	if (SpinModeSettings.ProgressSteps == 1400) p_helper->animations.StartAnimation(14, SpinModeSettings.Interval, animUp);
-	if (SpinModeSettings.ProgressSteps == 1500) p_helper->animations.StartAnimation(15, SpinModeSettings.Interval, animUp);	
+	unsigned long currentMillis = millis();
+
+	if (currentMillis - p_helper->previousMillis > SpinModeSettings.Interval) {
+		p_helper->previousMillis = currentMillis;
+		p_helper->animations.StartAnimation(SpinModeSettings.ProgressSteps, SpinModeSettings.FadeRate, animUp);
+		SpinModeSettings.ProgressSteps = SpinModeSettings.ProgressSteps + 1;
+		if (SpinModeSettings.ProgressSteps == 16) SpinModeSettings.ProgressSteps = 0;
+	}
+
 	p_helper->animations.UpdateAnimations(1000);
-
-	
-
-
-	SpinModeSettings.ProgressSteps = SpinModeSettings.ProgressSteps + 1;
-	if (SpinModeSettings.ProgressSteps == 1599) SpinModeSettings.ProgressSteps = 0;
 	if (p_helper->strip.CanShow()) p_helper->strip.Show();
 	delay(1);
 }
