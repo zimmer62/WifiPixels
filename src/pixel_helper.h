@@ -8,6 +8,8 @@
 #define RGBMode_BLEND 1
 #define CustomPattern_Mode 2
 #define Spin_Mode 3
+#define Back_Spin_Mode 4
+#define Ping_Pong_Spin_Mode 5
 
 
 #define pixelPin 2

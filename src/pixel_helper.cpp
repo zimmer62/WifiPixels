@@ -52,6 +52,14 @@ void PIXEL_HELPER_CLASS::ProcessCommand(String input) {
 	if (input.startsWith("SPINNER")) {
 		ParseSpin(input, pixel_helper);
 	}
+	if (input.startsWith("RENNIPS")) {
+		ParseSpin(input, pixel_helper);
+		LEDMode = Back_Spin_Mode;
+	}
+	if (input.startsWith("SPINIPS")) {
+		ParseSpin(input, pixel_helper);
+		LEDMode = Ping_Pong_Spin_Mode;
+	}
 
 }
 
@@ -64,6 +72,10 @@ void PIXEL_HELPER_CLASS::pixelLoop() {
 	DoCustomPatternMode(pixel_helper);  
   } else if (LEDMode == Spin_Mode) {
 	  DoSpinMode(pixel_helper);
+  } else if (LEDMode == Back_Spin_Mode) {
+	  DoBackSpinMode(pixel_helper);
+  } else if (LEDMode == Ping_Pong_Spin_Mode) {
+	  DoPingPongSpinMode(pixel_helper);
   }
   
   if(ProcessSerial){
