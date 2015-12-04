@@ -32,7 +32,7 @@ PIXEL_HELPER_CLASS::PIXEL_HELPER_CLASS() {
   
   // Turn onboard led off
   pinMode(BUILTIN_LED, OUTPUT);
-  digitalWrite(BUILTIN_LED, LOW);
+  digitalWrite(BUILTIN_LED, HIGH);
 }
 
 
@@ -59,6 +59,9 @@ void PIXEL_HELPER_CLASS::ProcessCommand(String input) {
 	if (input.startsWith("SPINIPS")) {
 		ParseSpin(input, pixel_helper);
 		LEDMode = Ping_Pong_Spin_Mode;
+	}
+	if (input.startsWith("UPDATE")) {
+		ParseUpdate(input, pixel_helper);
 	}
 
 }

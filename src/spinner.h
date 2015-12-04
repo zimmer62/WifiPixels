@@ -8,5 +8,6 @@ void DoSpinMode(PIXEL_HELPER_CLASS*);
 void DoBackSpinMode(PIXEL_HELPER_CLASS*);
 void DoPingPongSpinMode(PIXEL_HELPER_CLASS*);
 void ParseSpin(String, PIXEL_HELPER_CLASS*);
+void ParseUpdate(String, PIXEL_HELPER_CLASS*);
 
 #endif

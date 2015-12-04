@@ -19,6 +19,23 @@ struct RGBBLEND {
 
 RGBBLEND SpinModeSettings;
 
+void ParseUpdate(String input, PIXEL_HELPER_CLASS* p_helper) {
+	input.remove(0, 7);
+	SpinModeSettings.RGB1 = p_helper->RGBStringToRGB(input.substring(0, input.indexOf(',')));
+
+	input.remove(0, input.indexOf(',') + 1);
+	SpinModeSettings.RGB2 = p_helper->RGBStringToRGB(input.substring(0, input.indexOf(',')));
+
+	input.remove(0, input.indexOf(',') + 1);
+	SpinModeSettings.Cycles = input.substring(0, input.indexOf(',')).toInt();
+
+	input.remove(0, input.indexOf(',') + 1);
+	SpinModeSettings.Interval = input.substring(0, input.indexOf(',')).toInt();
+
+	input.remove(0, input.indexOf(',') + 1);
+	SpinModeSettings.FadeRate = input.toInt();
+}
+
 void ParseSpin(String input, PIXEL_HELPER_CLASS* p_helper) {
 	SpinModeSettings.p_helper = p_helper;
 	p_helper->LEDMode = Spin_Mode;
@@ -91,10 +108,19 @@ AnimUpdateCallback animCurrentOneTwoOneOff = [=](uint16_t n, float progress)
 AnimUpdateCallback animCurrentOneTwoOff = [=](uint16_t n, float progress)
 {
 	// progress will start at 0.0 and end at 1.0
-	RgbColor currentColor = SpinModeSettings.p_helper->strip.GetPixelColor(n);
+	/*RgbColor currentColor = SpinModeSettings.p_helper->strip.GetPixelColor(n);
+	Serial.print(n);
+	Serial.print("-R:");
+	Serial.print(currentColor.R);
+	Serial.print("G:");
+	Serial.print(currentColor.G);
+	Serial.print("B:");
+	Serial.println (currentColor.B);*/
+	
+
 	RgbColor updatedColor;
 	if (0.00 <= progress && progress <= 0.33) {
-		updatedColor = RgbColor::LinearBlend(currentColor, SpinModeSettings.RGB1, progress*3.0);
+		updatedColor = RgbColor::LinearBlend(RgbColor(0, 0, 0), SpinModeSettings.RGB1, progress*3.0);
 	}
 	if (0.33 < progress && progress <= 0.66) {
 		updatedColor = RgbColor::LinearBlend(SpinModeSettings.RGB1, SpinModeSettings.RGB2, (progress - .33)*3.0);
@@ -121,7 +147,7 @@ void DoSpinMode(PIXEL_HELPER_CLASS* p_helper) {
 
 	p_helper->animations.UpdateAnimations(100);
 	if (p_helper->strip.CanShow()) p_helper->strip.Show();
-	delay(1);
+	//delay(1);
 }
 
 void DoBackSpinMode(PIXEL_HELPER_CLASS* p_helper) {
@@ -137,7 +163,7 @@ void DoBackSpinMode(PIXEL_HELPER_CLASS* p_helper) {
 
 	p_helper->animations.UpdateAnimations(100);
 	if (p_helper->strip.CanShow()) p_helper->strip.Show();
-	delay(1);
+	//delay(1);
 }
 
 void DoPingPongSpinMode(PIXEL_HELPER_CLASS* p_helper) {
@@ -158,7 +184,7 @@ void DoPingPongSpinMode(PIXEL_HELPER_CLASS* p_helper) {
 
 	p_helper->animations.UpdateAnimations(100);
 	if (p_helper->strip.CanShow()) p_helper->strip.Show();
-	delay(1);
+	//delay(1);
 }
 
 
