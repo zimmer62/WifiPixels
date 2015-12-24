@@ -20,8 +20,10 @@ class PIXEL_HELPER_CLASS
   public:
     PIXEL_HELPER_CLASS();
     void pixelLoop();
+	void DoAttractMode(PIXEL_HELPER_CLASS* p_helper);
     void ProcessCommand(String command);
     int LEDMode = RGBMode_Blank;
+	int AttractMode = RGBMode_Blank;
     bool ProcessSerial = false;
 
     RgbColor RGBStringToRGB(String input);

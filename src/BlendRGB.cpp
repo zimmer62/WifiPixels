@@ -51,6 +51,12 @@ void DoBlendMode(PIXEL_HELPER_CLASS* p_helper) {
     }
     if (BlendModeSettings.Progress < 1) {
       BlendModeSettings.Direction = 1;
+	  if (BlendModeSettings.Cycles > 0) {
+		  BlendModeSettings.CycleNumber++;
+		  if (BlendModeSettings.CycleNumber >= BlendModeSettings.Cycles) {
+			  p_helper->LEDMode = RGBMode_Blank;
+		  }
+	  }
     }
 
 	float tempProgress = BlendModeSettings.Progress / 255.0;

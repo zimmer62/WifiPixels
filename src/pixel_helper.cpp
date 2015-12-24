@@ -41,6 +41,8 @@ PIXEL_HELPER_CLASS::PIXEL_HELPER_CLASS() {
 
 // RGBBLEND,0.0.0,0.20.0,0,3
 void PIXEL_HELPER_CLASS::ProcessCommand(String input) {
+	AttractMode = RGBMode_Blank;
+
   Serial.print("ProcessCommand:");
   Serial.println(input);
 	if (input.startsWith("RGBBLEND")) {
@@ -68,18 +70,36 @@ void PIXEL_HELPER_CLASS::ProcessCommand(String input) {
 
 String SerialInput = "";
 
+void PIXEL_HELPER_CLASS::DoAttractMode(PIXEL_HELPER_CLASS* p_helper) {
+	//todo: insert some random stuff to make sure this gets changed up every so often.
+	ParseRGBBLEND("RGBBLEND,25.0.0,0.25.25,0,10", pixel_helper);
+	AttractMode = RGBMode_BLEND;
+}
+
 void PIXEL_HELPER_CLASS::pixelLoop() {
-  if (LEDMode == RGBMode_BLEND) {
-    DoBlendMode(pixel_helper);
-  } else if(LEDMode == RGBMode_BLEND){
-	DoCustomPatternMode(pixel_helper);  
-  } else if (LEDMode == Spin_Mode) {
-	  DoSpinMode(pixel_helper);
-  } else if (LEDMode == Back_Spin_Mode) {
-	  DoBackSpinMode(pixel_helper);
-  } else if (LEDMode == Ping_Pong_Spin_Mode) {
-	  DoPingPongSpinMode(pixel_helper);
-  }
+	if (LEDMode == RGBMode_BLEND || AttractMode == RGBMode_BLEND) {
+		DoBlendMode(pixel_helper);
+	}
+	else if (LEDMode == CustomPattern_Mode || AttractMode == CustomPattern_Mode) {
+		DoCustomPatternMode(pixel_helper);
+	}
+	else if (LEDMode == Spin_Mode || AttractMode == Spin_Mode) {
+		DoSpinMode(pixel_helper);
+	}
+	else if (LEDMode == Back_Spin_Mode || AttractMode == Back_Spin_Mode) {
+		DoBackSpinMode(pixel_helper);
+	}
+	else if (LEDMode == Ping_Pong_Spin_Mode || AttractMode == Ping_Pong_Spin_Mode) {
+		DoPingPongSpinMode(pixel_helper);
+	}
+	else if (LEDMode == RGBMode_Blank || AttractMode == RGBMode_Blank) {
+		DoAttractMode(pixel_helper);
+	}
+
+	if (AttractMode != RGBMode_Blank) {
+		//DoAttractMode(pixel_helper);
+	}
+
   
   if(ProcessSerial){
     while (Serial.available() > 0)
